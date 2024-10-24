@@ -1,1 +1,29 @@
+name: Convert RTSP to HLS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up FFmpeg
+      run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+    - name: Convert RTSP stream to HLS
+      run: |
+        ffmpeg -i rtsp://192.168.43.181:554/stream1 -c:v copy -hls_time 2 -hls_list_size 3 -f hls output/stream.m3u8
+        
+    - name: Upload HLS files to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./output
 
